@@ -35,7 +35,7 @@ Start timestamp|Earliest historical quote date for the model
 
 """
 
-pred_delta_t = 30   # measured in working days
+pred_delta_t = 22   # measured in working days
 
 # NOTE: Change threshold for 'Fair' back to 0.04 after testing with fewer output labels
 thresh_vec = {0.04: 'Fair', 0.10: 'Moderate', 0.16: 'Strong'}    # inclusive percentage thresholds for confidence in buying and selling
@@ -360,7 +360,7 @@ def get_sample_input(ticker_symbol: str, days_since_last: int=pred_delta_t):
     #                      3889.14, 3939.34, 3925.43, 3824.68, # S&P 500 (does NOT have the volume input feature)
     #                      32420.06, 3993900, 32485.59, 31961.86, 31097.97] # Dow Jones
 
-    # This is the market index data readout for 
+    # This is the market index data readout for 2/22/2021 (for predicting 22 work days ahead)
     raw_sample_input += [13533.05, 6435100000, 13777.74, 13543.06, 12377.18,
                          2251.07, 5870190000, 2202.42, 2141.42, 1848.70,
                          3876.50, 3871.74, 3853.07, 3666.72,
