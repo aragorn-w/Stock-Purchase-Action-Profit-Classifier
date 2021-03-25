@@ -35,7 +35,7 @@ Start timestamp|Earliest historical quote date for the model
 
 """
 
-pred_delta_t = 15   # measured in working days
+pred_delta_t = 30   # measured in working days
 
 # NOTE: Change threshold for 'Fair' back to 0.04 after testing with fewer output labels
 thresh_vec = {0.04: 'Fair', 0.10: 'Moderate', 0.16: 'Strong'}    # inclusive percentage thresholds for confidence in buying and selling
@@ -215,7 +215,6 @@ data = pd.concat(symbol_dataframes.values(), ignore_index=True)     # Repeated c
 plt.show()
 data = pd.get_dummies(data, columns=['ACTION_LABEL'], prefix='', prefix_sep='')
 full_print(data.sample(10))
-assert len(data.columns) == len(all_columns)
 
 # Deal with missing data
 null_data = data[data.isnull().any(axis=1)]
@@ -320,7 +319,7 @@ def unix_after_bdays(date: datetime, bdays: int) -> int:
     return (date - pd.Timestamp("1970-01-01")) // pd.Timedelta('1s')
 
 
-def get_sample_input(ticker_symbol: str, days_since_last: int=0):
+def get_sample_input(ticker_symbol: str, days_since_last: int=pred_delta_t):
     # set days_since_last to 0 for future predictions, pred_delta_t for historical validation
     raw_sample_input = []
     start_date = unix_after_bdays(datetime.today(), days_since_last+365)
@@ -356,10 +355,16 @@ def get_sample_input(ticker_symbol: str, days_since_last: int=0):
     #         raw_sample_input.append(percent_change(period_price, current_price))
     
     # This is the market index data readout for 3/25/2021
-    raw_sample_input += [12961.89, 6184470000, 13398.67, 13597.97, 13201.98,  # Nasdaq Composite
-                         2134.27, 4766990000, 2338.54, 2284.38, 2202.98, # Russell 2000
-                         3889.14, 3939.34, 3925.43, 3824.68, # S&P 500 (does NOT have the volume input feature)
-                         32420.06, 3993900, 32485.59, 31961.86, 31097.97] # Dow Jones
+    # raw_sample_input += [12961.89, 6184470000, 13398.67, 13597.97, 13201.98,  # Nasdaq Composite
+    #                      2134.27, 4766990000, 2338.54, 2284.38, 2202.98, # Russell 2000
+    #                      3889.14, 3939.34, 3925.43, 3824.68, # S&P 500 (does NOT have the volume input feature)
+    #                      32420.06, 3993900, 32485.59, 31961.86, 31097.97] # Dow Jones
+
+    # This is the market index data readout for 
+    raw_sample_input += [13533.05, 6435100000, 13777.74, 13543.06, 12377.18,
+                         2251.07, 5870190000, 2202.42, 2141.42, 1848.70,
+                         3876.50, 3871.74, 3853.07, 3666.72,
+                         31521.69, 3872100, 31055.86, 31176.01, 29969.52]
 
     return np.array(raw_sample_input)
 
@@ -376,7 +381,7 @@ print('Here are the latest confidence-magnitudes for buy and sell actions:')
 for thresh, label in thresh_vec.items():
     print(f'{label:<15}{int(thresh)}%')     # assumes that the confidence magnitudes don't have a thousandth place
 print()
-print(f'My latest validation accuracy was {round(eval_accuracy*100.0, 2)}%. Random change is {round(100.0/len(output_columns), 2)}\n')
+print(f'My latest validation accuracy was {round(eval_accuracy*100.0, 2)}%. Random chance is {round(100.0/len(output_columns), 2)}%\n')
 exit_code = 'exit0'
 print('Enter your ticker symbols (not case-sensitive), separated by spaces. More tickers takes more time due to my API-call limits.\n')
 final_msg = f'When you\'re finished, just enter \'{exit_code}\' to exit and put me to sleep.'
